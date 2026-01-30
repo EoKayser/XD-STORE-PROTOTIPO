@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>XD Store</title>
+
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/theme.css" />
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-container">
+
+      <div class="logo">
+        XD <span>Store</span>
+      </div>
+
+      <button class="cart-button" id="open-cart">
+        🛒 Carrinho
+        <span class="cart-count">0</span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- CARRINHO LATERAL -->
+  <aside class="cart-sidebar" id="cart-sidebar">
+
+    <div class="cart-header">
+      <h2>Meu Carrinho</h2>
+      <button class="cart-close" id="close-cart">✕</button>
+    </div>
+
+    <div class="cart-items">
+      <!-- itens via JS -->
+    </div>
+
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total</span>
+        <strong id="cart-total">R$ 0,00</strong>
+      </div>
+
+     <a href="pages/checkout.html" class="checkout-button">
+  Finalizar Compra
+</a>
+    </div>
+
+  </aside>
+
+  <!-- OVERLAY -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+
+  <!-- MAIN -->
+  <main class="site-main">
+
+    <section class="store-intro">
+      <h2 class="store-title">Bem-vindo à loja</h2>
+      <p class="store-description">
+        Aqui você encontra nossos produtos disponíveis.
+      </p>
+    </section>
+
+    <section class="products-section">
+      <h2 class="section-title">Produtos</h2>
+      <div class="products-list">
+        <!-- produtos via JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-container">
+
+      <div class="footer-brand">
+        <strong class="footer-store-name">XD Store</strong>
+      </div>
+
+      <div class="footer-info">
+        <p class="footer-text">
+          Loja digital de produtos e serviços online.
+        </p>
+      </div>
+
+      <div class="footer-legal">
+        <small>
+          © 2026 XD Store. Todos os direitos reservados.
+        </small>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- SCRIPTS (ORDEM IMPORTA) -->
+  <script type="module">
+    import { initUI } from "./js/ui.js";
+    initUI();
+  </script>
+
+  <script type="module" src="./js/admin.js"></script>
+
+<!-- ADMIN MODAL -->
+<div class="admin-overlay" id="admin-overlay">
+  <div class="admin-modal">
+
+    <!-- LOGIN -->
+    <div class="admin-login" id="admin-login">
+      <h2>Modo Administrador</h2>
+      <input type="password" id="admin-password" placeholder="Senha">
+      <button id="admin-login-btn">Entrar</button>
+    </div>
+
+    <!-- PAINEL -->
+    <div class="admin-panel hidden" id="admin-panel">
+      <h2>Painel Admin</h2>
+
+      <div class="admin-form">
+        <input type="text" id="product-name" placeholder="Nome do produto">
+        <input type="number" id="product-price" placeholder="Preço">
+        <input type="text" id="product-img" placeholder="URL da imagem">
+        <button id="add-product-btn">Adicionar produto</button>
+      </div>
+
+      <h3>Produtos cadastrados</h3>
+      <div class="admin-products" id="admin-products"></div>
+
+      <button class="admin-close" id="admin-close">Fechar</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ===============================
+  // CHECKOUT PIX - SEGURO
+  // ===============================
+
+  const checkoutSection = document.getElementById("pix-checkout");
+  const mainSection = document.querySelector(".site-main");
+  const footerSection = document.querySelector(".site-footer");
+  const checkoutBtn = document.querySelector(".checkout-button");
+  const backBtn = document.getElementById("pix-back");
+
+  const pixOrderIdEl = document.getElementById("pix-order-id");
+  const pixTotalEl = document.getElementById("pix-total");
+
+  function getCart() {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+  }
+
+  function generateOrderId() {
+    return `XD-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`;
+  }
+
+  function calculateCartTotal(cart) {
+    return cart.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
+  }
+
+  // FINALIZAR COMPRA
+  checkoutBtn.addEventListener("click", () => {
+    const cart = getCart();
+
+    if (cart.length === 0) {
+      alert("Carrinho vazio");
+      return;
+    }
+
+    // troca de tela
+    mainSection.classList.add("hidden");
+    footerSection.classList.add("hidden");
+    checkoutSection.classList.remove("hidden");
+    window.scrollTo(0, 0);
+
+    const orderId = generateOrderId();
+    const total = calculateCartTotal(cart);
+
+    pixOrderIdEl.textContent = orderId;
+    pixTotalEl.textContent = "R$ " + total;
+
+    // salva pedido
+    localStorage.setItem("currentOrder", JSON.stringify({
+      id: orderId,
+      total,
+      items: cart,
+      status: "aguardando pagamento"
+    }));
+  });
+
+  // VOLTAR
+  backBtn.addEventListener("click", () => {
+    checkoutSection.classList.add("hidden");
+    mainSection.classList.remove("hidden");
+    footerSection.classList.remove("hidden");
+  });
+</script>
+
+</body>
+</html>
