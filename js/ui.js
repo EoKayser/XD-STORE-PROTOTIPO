@@ -36,14 +36,23 @@ export function renderProducts() {
     const card = document.createElement("article");
     card.className = "product-card";
 
+    const basePrice = parseFloat(product.price);
+    const promoEnabled = !!product.promoEnabled && product.promoPrice !== '' && !isNaN(parseFloat(product.promoPrice)) && parseFloat(product.promoPrice) > 0 && parseFloat(product.promoPrice) < basePrice;
+    const promoPrice = promoEnabled ? parseFloat(product.promoPrice) : null;
+    const priceHTML = promoEnabled 
+      ? `<span class="price-old">R$ ${basePrice.toFixed(2)}</span><span class="price-new">R$ ${promoPrice.toFixed(2)}</span>`
+      : `R$ ${basePrice.toFixed(2)}`;
+    const badgeHTML = promoEnabled ? `<div class="badge-promo">Promo</div>` : '';
+
     card.innerHTML = `
       <div class="product-image">
         <img src="${product.img}" alt="${product.name}">
       </div>
 
       <div class="product-info">
+        ${badgeHTML}
         <h3 class="product-name">${product.name}</h3>
-        <p class="product-price">R$ ${parseFloat(product.price).toFixed(2)}</p>
+        <p class="product-price">${priceHTML}</p>
 
         <button class="product-button" data-index="${index}">
           Adicionar ao carrinho
@@ -88,9 +97,13 @@ function bindAddToCartButtons() {
       const index = btn.dataset.index;
       const product = getProducts()[index];
 
+      const basePrice = parseFloat(product.price);
+      const promoEnabled = !!product.promoEnabled && product.promoPrice !== '' && !isNaN(parseFloat(product.promoPrice)) && parseFloat(product.promoPrice) > 0 && parseFloat(product.promoPrice) < basePrice;
+      const priceToAdd = promoEnabled ? parseFloat(product.promoPrice) : parseFloat(product.price);
+
       addToCart({
         name: product.name,
-        price: product.price
+        price: priceToAdd
       });
 
       renderCart();

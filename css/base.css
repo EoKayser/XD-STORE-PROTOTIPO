@@ -21,6 +21,7 @@ body {
    ================================ */
 
 .site-header {
+  background-color: var(--primary);
   border-bottom: 1px solid #ddd;
 }
 
@@ -89,14 +90,15 @@ body {
 
 .footer-store-name {
   font-weight: bold;
+  color: white;
 }
 
 .footer-text {
   font-size: 0.9rem;
-  color: #444;
+  color: white;
 }
 
 .footer-legal {
   font-size: 0.8rem;
-  color: #666;
+  color: white;
 }
