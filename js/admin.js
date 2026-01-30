@@ -1,3 +1,5 @@
+import { renderProducts } from "./ui.js";
+
 // ===============================
 // ADMIN - LOGIN PRIMEIRO, PAINEL APÓS AUTENTICAÇÃO
 // Login: usuário "kayser", senha "1234"
@@ -365,7 +367,9 @@ function bindProducts() {
     document.getElementById('prodName').value = '';
     document.getElementById('prodPrice').value = '';
     document.getElementById('prodImg').value = '';
+    persistAdminData();
     renderAdminProducts();
+    renderProducts();
   };
 
   const removeBtn = document.getElementById('removeSelected');
@@ -373,7 +377,9 @@ function bindProducts() {
     const checked = document.querySelectorAll('.remove-check:checked');
     const ids = [...checked].map(c => Number(c.dataset.id));
     adminData.products = adminData.products.filter(p => !ids.includes(p.id));
+    persistAdminData();
     renderAdminProducts();
+    renderProducts();
   };
 }
 
