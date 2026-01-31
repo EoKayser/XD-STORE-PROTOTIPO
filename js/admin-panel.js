@@ -1,9 +1,9 @@
-// Admin Panel Page Script
+// Admin panel functionality for XD Store
 
 import { renderProducts } from "./ui.js";
-import { addProduct, removeProduct, updateProduct, getProducts } from "./store.js";
 
-const defaultAdminData = {
+// Admin data structure
+let adminData = {
   store: {
     name: 'XD Store',
     slogan: '',
@@ -28,35 +28,28 @@ const defaultAdminData = {
   content: {
     checkoutNote: '',
     successDiscordStepsHTML: ''
-  },
-  products: []
+  }
 };
 
-function getAdminData() {
-  try {
-    const raw = localStorage.getItem('adminData');
-    if (!raw) return { ...defaultAdminData };
-    const parsed = JSON.parse(raw);
-    return {
-      ...defaultAdminData,
-      ...parsed,
-      store: {
-        ...defaultAdminData.store,
-        ...(parsed.store || {}),
-        links: { ...defaultAdminData.store.links, ...(parsed.store?.links || {}) },
-        theme: { ...defaultAdminData.store.theme, ...(parsed.store?.theme || {}) }
-      },
-      pix: { ...defaultAdminData.pix, ...(parsed.pix || {}) },
-      content: { ...defaultAdminData.content, ...(parsed.content || {}) },
-      products: Array.isArray(parsed.products) ? parsed.products : defaultAdminData.products
-    };
-  } catch {
-    return { ...defaultAdminData };
+// Load admin data from localStorage
+function loadAdminData() {
+  const stored = localStorage.getItem('adminData');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      adminData = { ...adminData, ...parsed };
+    } catch (e) {
+      console.warn('Error loading admin data:', e);
+    }
   }
 }
 
-let adminData = getAdminData();
+// Save admin data to localStorage
+function saveAdminData() {
+  localStorage.setItem('adminData', JSON.stringify(adminData));
+}
 
+// Apply theme from admin data
 function applyTheme() {
   const theme = adminData.store.theme;
   document.documentElement.style.setProperty('--primary', theme.primary);
@@ -75,14 +68,8 @@ function applyTheme() {
   }
 }
 
-applyTheme();
-
-function saveAdminData() {
-  localStorage.setItem('adminData', JSON.stringify(adminData));
-  localStorage.setItem('products', JSON.stringify(adminData.products));
-}
-
-async function loadAdminFields() {
+// Load admin fields into the form
+function loadAdminFields() {
   // Store
   document.getElementById('store-name').value = adminData.store.name;
   document.getElementById('store-slogan').value = adminData.store.slogan;
@@ -106,14 +93,17 @@ async function loadAdminFields() {
   // Content
   document.getElementById('success-steps').value = adminData.content.successDiscordStepsHTML;
 
-  await loadAdminProducts();
+  // Load products
+  loadAdminProducts();
 }
 
-async function loadAdminProducts() {
-  const products = await getProducts();
+// Load products into admin panel
+function loadAdminProducts() {
+  const products = window.PRODUCTS || [];
   renderAdminProducts(products);
 }
 
+// Render products in admin panel
 function renderAdminProducts(products) {
   const list = document.getElementById('admin-product-list');
   list.innerHTML = '';
@@ -146,9 +136,10 @@ function renderAdminProducts(products) {
   });
 }
 
+// Bind product actions
 function bindProductActions() {
   const addBtn = document.getElementById('add-product');
-  addBtn.onclick = async () => {
+  addBtn.onclick = () => {
     const name = document.getElementById('prod-name').value.trim();
     const price = document.getElementById('prod-price').value;
     const img = document.getElementById('prod-img').value.trim();
@@ -156,39 +147,67 @@ function bindProductActions() {
       alert('Preencha todos os campos');
       return;
     }
-    try {
-      await addProduct({ name, price, img: '../assets/images/' + img });
-      document.getElementById('prod-name').value = '';
-      document.getElementById('prod-price').value = '';
-      document.getElementById('prod-img').value = '';
-      await loadAdminProducts();
-      await renderProducts();
-    } catch (error) {
-      console.error('Erro ao adicionar produto:', error);
-      alert('Erro ao adicionar produto');
-    }
+
+    // Add to window.PRODUCTS
+    if (!window.PRODUCTS) window.PRODUCTS = [];
+    const newProduct = {
+      id: Date.now(),
+      name,
+      price: String(price),
+      img: '../assets/images/' + img,
+      promoEnabled: false,
+      promoPrice: ''
+    };
+    window.PRODUCTS.push(newProduct);
+
+    // Clear form
+    document.getElementById('prod-name').value = '';
+    document.getElementById('prod-price').value = '';
+    document.getElementById('prod-img').value = '';
+
+    // Update UI
+    loadAdminProducts();
+    renderProducts();
+
+    // Show export message
+    alert('Produto adicionado! Para que outros usuários vejam, copie o JSON dos produtos e cole no index.html.');
   };
 
   const removeBtn = document.getElementById('remove-selected');
-  removeBtn.onclick = async () => {
+  removeBtn.onclick = () => {
     const checked = document.querySelectorAll('.remove-check:checked');
     const ids = Array.from(checked).map(c => Number(c.dataset.id));
-    try {
-      for (const id of ids) {
-        await removeProduct(id);
-      }
-      await loadAdminProducts();
-      await renderProducts();
-    } catch (error) {
-      console.error('Erro ao remover produtos:', error);
-      alert('Erro ao remover produtos');
-    }
+    if (!window.PRODUCTS) window.PRODUCTS = [];
+    window.PRODUCTS = window.PRODUCTS.filter(p => !ids.includes(p.id));
+
+    // Update UI
+    loadAdminProducts();
+    renderProducts();
+
+    // Show export message
+    alert('Produtos removidos! Para que outros usuários vejam, copie o JSON dos produtos e cole no index.html.');
   };
+
+  // Export products as JSON
+  const exportBtn = document.getElementById('export-products');
+  if (exportBtn) {
+    exportBtn.onclick = () => {
+      const products = window.PRODUCTS || [];
+      const json = JSON.stringify(products, null, 2);
+      navigator.clipboard.writeText(json).then(() => {
+        alert('JSON dos produtos copiado para a área de transferência! Cole no window.PRODUCTS do index.html.');
+      }).catch(() => {
+        // Fallback: show in prompt
+        prompt('Copie este JSON e cole no window.PRODUCTS do index.html:', json);
+      });
+    };
+  }
 }
 
+// Bind save action
 function bindSaveAction() {
   const saveBtn = document.getElementById('save-admin');
-  saveBtn.onclick = async () => {
+  saveBtn.onclick = () => {
     // Store
     adminData.store.name = document.getElementById('store-name').value.trim();
     adminData.store.slogan = document.getElementById('store-slogan').value.trim();
@@ -201,7 +220,7 @@ function bindSaveAction() {
     adminData.store.theme.backgroundRepeat = document.getElementById('theme-background-repeat').value;
     adminData.store.theme.backgroundPosition = document.getElementById('theme-background-position').value;
 
-    // Update products
+    // Update products from form
     const productElements = document.querySelectorAll('.admin-product');
     for (const el of productElements) {
       const id = Number(el.querySelector('.remove-check').dataset.id);
@@ -210,10 +229,17 @@ function bindSaveAction() {
       const img = '../assets/images/' + el.querySelector('.edit-img').value;
       const promoEnabled = el.querySelector('.edit-promo-enabled').checked;
       const promoPrice = el.querySelector('.edit-promo-price').value;
-      try {
-        await updateProduct(id, { name, price, img, promoEnabled, promoPrice });
-      } catch (error) {
-        console.error('Erro ao atualizar produto:', error);
+
+      // Update in window.PRODUCTS
+      if (window.PRODUCTS) {
+        const product = window.PRODUCTS.find(p => p.id === id);
+        if (product) {
+          product.name = name;
+          product.price = price;
+          product.img = img;
+          product.promoEnabled = promoEnabled;
+          product.promoPrice = promoPrice;
+        }
       }
     }
 
@@ -230,26 +256,44 @@ function bindSaveAction() {
 
     saveAdminData();
     applyTheme();
-    alert('Alterações salvas. Recarregando para aplicar...');
-    location.reload();
+
+    // Update UI
+    renderProducts();
+
+    alert('Alterações salvas! Para que outros usuários vejam os produtos, copie o JSON dos produtos e cole no index.html.');
   };
 }
 
+// Bind accordion functionality
+function bindAccordions() {
+  document.querySelectorAll('.admin-toggle').forEach(btn => {
+    btn.onclick = () => {
+      const content = btn.nextElementSibling;
+      content.classList.toggle('hidden');
+    };
+  });
+}
+
+// Bind logout functionality
 function bindLogout() {
   const logoutBtn = document.getElementById('logout-btn');
-  logoutBtn.onclick = () => {
-    if (confirm('Tem certeza que deseja sair?')) {
+  if (logoutBtn) {
+    logoutBtn.onclick = () => {
       window.location.href = '../index.html';
-    }
-  };
+    };
+  }
 }
 
-// Initialize
+// Initialize admin panel
 async function initAdminPanel() {
+  loadAdminData();
+  applyTheme();
+  bindAccordions();
   await loadAdminFields();
   bindProductActions();
   bindSaveAction();
   bindLogout();
 }
 
-initAdminPanel();
+// Export for use in admin.html
+export { initAdminPanel };
