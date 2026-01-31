@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XD Admin - Painel de Controle</title>
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <h1 class="logo">XD Admin</h1>
+      <nav class="nav">
+        <button id="logout-btn" class="btn-secondary">Sair</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="admin-panel">
+        <h2>Painel de Controle</h2>
+
+        <div class="admin-section">
+          <h3>🏪 Loja</h3>
+          <div class="admin-content">
+            <input class="admin-input" id="store-name" placeholder="Nome da loja">
+            <input class="admin-input" id="store-slogan" placeholder="Slogan (opcional)">
+            <div class="admin-grid-2">
+              <input class="admin-input" id="discord-url" placeholder="URL do Discord (https://...)">
+              <span class="admin-note">Link usado na página de sucesso.</span>
+            </div>
+            <h4 class="admin-note">Tema - Cores</h4>
+            <div class="admin-grid-3">
+              <div><label>Primária</label><input type="color" class="admin-input" id="theme-primary"></div>
+              <div><label>Secundária</label><input type="color" class="admin-input" id="theme-secondary"></div>
+              <div><label>Fundo (cor)</label><input type="color" class="admin-input" id="theme-background"></div>
+            </div>
+            <h4 class="admin-note">Fundo - Imagem</h4>
+            <input class="admin-input" id="theme-background-image" placeholder="URL da imagem (https://...)">
+            <div class="admin-grid-3">
+              <select class="admin-select" id="theme-background-size">
+                <option value="cover">cover</option>
+                <option value="contain">contain</option>
+                <option value="auto">auto</option>
+              </select>
+              <select class="admin-select" id="theme-background-repeat">
+                <option value="no-repeat">no-repeat</option>
+                <option value="repeat">repeat</option>
+                <option value="repeat-x">repeat-x</option>
+                <option value="repeat-y">repeat-y</option>
+              </select>
+              <select class="admin-select" id="theme-background-position">
+                <option value="center center">center center</option>
+                <option value="top center">top center</option>
+                <option value="center left">center left</option>
+                <option value="bottom center">bottom center</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-section">
+          <h3>📦 Produtos</h3>
+          <div class="admin-content">
+            <div class="admin-grid-3">
+              <input class="admin-input" id="prod-name" placeholder="Nome do produto">
+              <input class="admin-input" id="prod-price" placeholder="Preço" type="number" step="0.01">
+              <input class="admin-input" id="prod-img" placeholder="imagem.jpg">
+            </div>
+            <small class="admin-note">Base: <strong>assets/images/</strong></small>
+            <div class="admin-actions"><button class="btn-admin" id="add-product">Adicionar Produto</button></div>
+            <div id="admin-product-list"></div>
+            <div class="admin-actions"><button class="btn-admin btn-danger" id="remove-selected">Remover selecionados</button></div>
+          </div>
+        </div>
+
+        <div class="admin-section">
+          <h3>💳 PIX / Checkout</h3>
+          <div class="admin-content">
+            <input class="admin-input" id="pix-key" placeholder="Chave PIX">
+            <div class="admin-grid-2">
+              <input class="admin-input" id="pix-name" placeholder="Nome recebedor (ou . para ocultar)">
+              <input class="admin-input" id="pix-city" placeholder="Cidade (ou . para ocultar)">
+            </div>
+            <div class="admin-grid-2">
+              <label>Modo Copia e Cola
+                <select class="admin-select" id="pix-copy-mode">
+                  <option value="payload">Payload completo (recomendado)</option>
+                  <option value="key">Somente chave</option>
+                </select>
+              </label>
+              <label>Valor
+                <select class="admin-select" id="pix-amount-mode">
+                  <option value="fixed">Fixo (total do carrinho)</option>
+                  <option value="open">Aberto (cliente digita)</option>
+                </select>
+              </label>
+            </div>
+            <textarea class="admin-textarea" id="checkout-note" placeholder="Aviso no checkout (opcional)" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="admin-section">
+          <h3>📝 Conteúdo</h3>
+          <div class="admin-content">
+            <label for="success-steps">Instruções (HTML) da página de sucesso</label>
+            <textarea class="admin-textarea" id="success-steps" rows="6" placeholder="HTML das instruções (Discord, tickets, etc.)"></textarea>
+          </div>
+        </div>
+
+        <div class="admin-actions">
+          <button class="btn-admin" id="save-admin">💾 Salvar alterações</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="../js/admin-panel.js"></script>
+</body>
+</html>

@@ -8,40 +8,49 @@ import { API_BASE } from './config.js';
 
 /* ---------- CHAVES DO LOCALSTORAGE ---------- */
 const CART_KEY = "cart";
+const PRODUCTS_KEY = "products";
 
 /* ---------- PRODUTOS ---------- */
 
 /**
- * Retorna todos os produtos da API
+ * Retorna todos os produtos (API primeiro, depois localStorage, depois window.PRODUCTS)
  */
 export async function getProducts() {
   try {
     const response = await fetch(`${API_BASE}/products`);
-    if (!response.ok) throw new Error('Erro ao buscar produtos');
-    return await response.json();
+    if (response.ok) {
+      const products = await response.json();
+      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+      return products;
+    }
   } catch (error) {
-    console.error('Erro ao buscar produtos:', error);
-    return [];
+    console.warn('API não disponível, usando localStorage:', error);
   }
+
+  const stored = localStorage.getItem(PRODUCTS_KEY);
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  return window.PRODUCTS || [];
 }
 
 /**
- * Adiciona um novo produto via API
+ * Adiciona um novo produto ao localStorage
  * product = { name, price, img }
  */
 export async function addProduct(product) {
-  try {
-    const response = await fetch(`${API_BASE}/products`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(product)
-    });
-    if (!response.ok) throw new Error('Erro ao adicionar produto');
-    return await response.json();
-  } catch (error) {
-    console.error('Erro ao adicionar produto:', error);
-    throw error;
-  }
+  const products = await getProducts();
+  const newProduct = {
+    id: Date.now(),
+    name: product.name,
+    price: String(product.price),
+    img: product.img,
+    promoEnabled: false,
+    promoPrice: ''
+  };
+  products.push(newProduct);
+  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+  return newProduct;
 }
 
 /**
@@ -52,12 +61,21 @@ export async function removeProduct(id) {
     const response = await fetch(`${API_BASE}/products/${id}`, {
       method: 'DELETE'
     });
-    if (!response.ok) throw new Error('Erro ao remover produto');
-    return await response.json();
+    if (response.ok) {
+      // Atualizar localStorage
+      const products = await getProducts();
+      const filtered = products.filter(p => p.id != id);
+      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(filtered));
+      return;
+    }
   } catch (error) {
-    console.error('Erro ao remover produto:', error);
-    throw error;
+    console.warn('API não disponível, removendo localmente:', error);
   }
+
+  // Fallback para localStorage
+  const products = await getProducts();
+  const filtered = products.filter(p => p.id != id);
+  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(filtered));
 }
 
 /**
@@ -70,11 +88,27 @@ export async function updateProduct(id, updatedProduct) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedProduct)
     });
-    if (!response.ok) throw new Error('Erro ao atualizar produto');
-    return await response.json();
+    if (response.ok) {
+      const updated = await response.json();
+      // Atualizar localStorage
+      const products = await getProducts();
+      const index = products.findIndex(p => p.id == id);
+      if (index !== -1) {
+        products[index] = updated;
+        localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+      }
+      return updated;
+    }
   } catch (error) {
-    console.error('Erro ao atualizar produto:', error);
-    throw error;
+    console.warn('API não disponível, atualizando localmente:', error);
+  }
+
+  // Fallback para localStorage
+  const products = await getProducts();
+  const index = products.findIndex(p => p.id == id);
+  if (index !== -1) {
+    products[index] = { ...products[index], ...updatedProduct };
+    localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
   }
 }
 

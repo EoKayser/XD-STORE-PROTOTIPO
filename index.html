@@ -99,6 +99,14 @@
     </div>
   </footer>
 
+  <!-- PRODUTOS (EDITAR MANUALMENTE PARA ADICIONAR/REMOVER) -->
+  <script>
+    window.PRODUCTS = [
+      // Adicione produtos aqui manualmente no formato:
+      // { id: 1, name: "Nome do Produto", price: "10.00", img: "assets/images/produto1.png", promoEnabled: false, promoPrice: "" }
+    ];
+  </script>
+
   <!-- SCRIPTS (ORDEM IMPORTA) -->
   <script type="module">
     import { initUI } from "./js/ui.js";
@@ -129,6 +137,7 @@
         <input type="number" id="product-price" placeholder="Preço">
         <input type="text" id="product-img" placeholder="URL da imagem">
         <button id="add-product-btn">Adicionar produto</button>
+        <button id="export-products" style="margin-top: 10px; background: #28a745;">Exportar JSON dos Produtos</button>
       </div>
 
       <h3>Produtos cadastrados</h3>

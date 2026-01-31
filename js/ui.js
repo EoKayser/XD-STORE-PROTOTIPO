@@ -23,8 +23,8 @@ const openCartBtn = document.getElementById("open-cart");
 const closeCartBtn = document.getElementById("close-cart");
 
 /* ---------- PRODUTOS ---------- */
-export function renderProducts() {
-  const products = getProducts();
+export async function renderProducts() {
+  const products = await getProducts();
   productsContainer.innerHTML = "";
 
   if (products.length === 0) {
@@ -54,7 +54,7 @@ export function renderProducts() {
         <h3 class="product-name">${product.name}</h3>
         <p class="product-price">${priceHTML}</p>
 
-        <button class="product-button" data-index="${index}">
+        <button class="product-button" data-id="${product.id}">
           Adicionar ao carrinho
         </button>
       </div>
