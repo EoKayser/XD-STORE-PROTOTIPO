@@ -102,7 +102,9 @@
   <!-- SCRIPTS (ORDEM IMPORTA) -->
   <script type="module">
     import { initUI } from "./js/ui.js";
-    initUI();
+    (async () => {
+      await initUI();
+    })();
   </script>
 
   <script type="module" src="./js/admin.js"></script>

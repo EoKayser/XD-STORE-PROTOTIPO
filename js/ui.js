@@ -91,11 +91,14 @@ export function renderCart() {
 }
 
 /* ---------- EVENTOS ---------- */
-function bindAddToCartButtons() {
+async function bindAddToCartButtons() {
   document.querySelectorAll(".product-button").forEach(btn => {
-    btn.onclick = () => {
-      const index = btn.dataset.index;
-      const product = getProducts()[index];
+    btn.onclick = async () => {
+      const id = btn.dataset.id;
+      const products = await getProducts();
+      const product = products.find(p => p.id == id);
+
+      if (!product) return;
 
       const basePrice = parseFloat(product.price);
       const promoEnabled = !!product.promoEnabled && product.promoPrice !== '' && !isNaN(parseFloat(product.promoPrice)) && parseFloat(product.promoPrice) > 0 && parseFloat(product.promoPrice) < basePrice;
@@ -140,8 +143,8 @@ export function bindCartControls() {
 }
 
 /* ---------- INIT ---------- */
-export function initUI() {
-  renderProducts();
+export async function initUI() {
+  await renderProducts();
   renderCart();
   bindCartControls();
 }

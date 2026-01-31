@@ -1,62 +1,81 @@
 /* ================================
    STORE.JS
    Gerenciamento de dados da loja
-   Produtos + Carrinho (localStorage)
+   Produtos (API) + Carrinho (localStorage)
    ================================ */
 
+import { API_BASE } from './config.js';
+
 /* ---------- CHAVES DO LOCALSTORAGE ---------- */
-const PRODUCTS_KEY = "products";
 const CART_KEY = "cart";
 
 /* ---------- PRODUTOS ---------- */
 
 /**
- * Retorna todos os produtos salvos
+ * Retorna todos os produtos da API
  */
-export function getProducts() {
-  return JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+export async function getProducts() {
+  try {
+    const response = await fetch(`${API_BASE}/products`);
+    if (!response.ok) throw new Error('Erro ao buscar produtos');
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao buscar produtos:', error);
+    return [];
+  }
 }
 
 /**
- * Salva lista inteira de produtos
- */
-export function setProducts(products) {
-  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
-}
-
-/**
- * Adiciona um novo produto
+ * Adiciona um novo produto via API
  * product = { name, price, img }
  */
-export function addProduct(product) {
-  const products = getProducts();
-  products.push(product);
-  setProducts(products);
-}
-
-/**
- * Remove produtos pelos índices (array de índices)
- */
-export function removeProducts(indexes) {
-  let products = getProducts();
-
-  // Remove do maior índice para o menor (evita bug)
-  indexes
-    .sort((a, b) => b - a)
-    .forEach(index => {
-      products.splice(index, 1);
+export async function addProduct(product) {
+  try {
+    const response = await fetch(`${API_BASE}/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(product)
     });
-
-  setProducts(products);
+    if (!response.ok) throw new Error('Erro ao adicionar produto');
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao adicionar produto:', error);
+    throw error;
+  }
 }
 
 /**
- * Atualiza um produto existente
+ * Remove produto pelo ID via API
  */
-export function updateProduct(index, updatedProduct) {
-  const products = getProducts();
-  products[index] = updatedProduct;
-  setProducts(products);
+export async function removeProduct(id) {
+  try {
+    const response = await fetch(`${API_BASE}/products/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Erro ao remover produto');
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao remover produto:', error);
+    throw error;
+  }
+}
+
+/**
+ * Atualiza um produto existente via API
+ */
+export async function updateProduct(id, updatedProduct) {
+  try {
+    const response = await fetch(`${API_BASE}/products/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedProduct)
+    });
+    if (!response.ok) throw new Error('Erro ao atualizar produto');
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao atualizar produto:', error);
+    throw error;
+  }
 }
 
 /* ---------- CARRINHO ---------- */

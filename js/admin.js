@@ -1,4 +1,5 @@
 import { renderProducts } from "./ui.js";
+import { addProduct, removeProduct, updateProduct } from "./store.js";
 
 // ===============================
 // ADMIN - LOGIN PRIMEIRO, PAINEL APÓS AUTENTICAÇÃO
@@ -177,7 +178,7 @@ function persistAdminData() {
 // ===============================
 // CONSTRUÇÃO DO PAINEL (APÓS LOGIN)
 // ===============================
-function buildPanelSections() {
+async function buildPanelSections() {
   const body = document.getElementById('adminBody');
   // Limpa e reinsere header + corpo básicos
   body.innerHTML = '';
@@ -280,7 +281,7 @@ function buildPanelSections() {
   body.insertAdjacentHTML('beforeend', sectionsHTML);
 
   bindAccordions();
-  loadAdminFields();
+  await loadAdminFields();
   bindProducts();
   bindSave();
 }
@@ -296,7 +297,7 @@ function bindAccordions() {
 }
 
 // Carregar valores nos campos
-function loadAdminFields() {
+async function loadAdminFields() {
   // Loja
   document.getElementById('storeName').value = adminData.store.name || '';
   document.getElementById('storeSlogan').value = adminData.store.slogan || '';
@@ -320,14 +321,27 @@ function loadAdminFields() {
   // Conteúdo
   document.getElementById('successSteps').value = adminData.content.successDiscordStepsHTML || '';
 
-  renderAdminProducts();
+  await loadAdminProducts();
+}
+
+// Carregar produtos da API
+async function loadAdminProducts() {
+  try {
+    const response = await fetch(`${API_BASE}/products`);
+    if (!response.ok) throw new Error('Erro ao carregar produtos');
+    const products = await response.json();
+    renderAdminProducts(products);
+  } catch (error) {
+    console.error('Erro ao carregar produtos:', error);
+    renderAdminProducts([]);
+  }
 }
 
 // Produtos: render, add, remove
-function renderAdminProducts() {
+function renderAdminProducts(products) {
   const list = document.getElementById('adminProductList');
   list.innerHTML = '';
-  adminData.products.forEach(p => {
+  products.forEach(p => {
     const div = document.createElement('div');
     div.className = 'admin-product';
     div.style.display = 'grid';
@@ -358,28 +372,40 @@ function renderAdminProducts() {
 
 function bindProducts() {
   const addBtn = document.getElementById('addProduct');
-  if (addBtn) addBtn.onclick = () => {
+  if (addBtn) addBtn.onclick = async () => {
     const name = document.getElementById('prodName').value.trim();
     const price = String(document.getElementById('prodPrice').value).trim();
     const img = document.getElementById('prodImg').value.trim();
     if (!name || !price || !img) { alert('Preencha todos os campos'); return; }
-    adminData.products.push({ id: Date.now(), name, price, img: 'assets/images/' + img, promoEnabled: false, promoPrice: '' });
-    document.getElementById('prodName').value = '';
-    document.getElementById('prodPrice').value = '';
-    document.getElementById('prodImg').value = '';
-    persistAdminData();
-    renderAdminProducts();
-    renderProducts();
+
+    try {
+      await addProduct({ name, price, img: 'assets/images/' + img });
+      document.getElementById('prodName').value = '';
+      document.getElementById('prodPrice').value = '';
+      document.getElementById('prodImg').value = '';
+      await loadAdminProducts();
+      await renderProducts();
+    } catch (error) {
+      console.error('Erro ao adicionar produto:', error);
+      alert('Erro ao adicionar produto');
+    }
   };
 
   const removeBtn = document.getElementById('removeSelected');
-  if (removeBtn) removeBtn.onclick = () => {
+  if (removeBtn) removeBtn.onclick = async () => {
     const checked = document.querySelectorAll('.remove-check:checked');
     const ids = [...checked].map(c => Number(c.dataset.id));
-    adminData.products = adminData.products.filter(p => !ids.includes(p.id));
-    persistAdminData();
-    renderAdminProducts();
-    renderProducts();
+
+    try {
+      for (const id of ids) {
+        await removeProduct(id);
+      }
+      await loadAdminProducts();
+      await renderProducts();
+    } catch (error) {
+      console.error('Erro ao remover produtos:', error);
+      alert('Erro ao remover produtos');
+    }
   };
 }
 
@@ -387,7 +413,7 @@ function bindProducts() {
 function bindSave() {
   const saveBtn = document.getElementById('saveAdmin');
   if (!saveBtn) return;
-  saveBtn.onclick = () => {
+  saveBtn.onclick = async () => {
     // Loja
     adminData.store.name = document.getElementById('storeName').value.trim();
     adminData.store.slogan = document.getElementById('storeSlogan').value.trim();
@@ -400,17 +426,23 @@ function bindSave() {
     adminData.store.theme.backgroundRepeat = document.getElementById('themeBackgroundRepeat').value;
     adminData.store.theme.backgroundPosition = document.getElementById('themeBackgroundPosition').value;
 
-    // Produtos inline
-    document.querySelectorAll('#adminProductList .admin-product').forEach((el, i) => {
-      adminData.products[i].name = el.querySelector('.edit-name').value;
-      adminData.products[i].price = el.querySelector('.edit-price').value;
-      adminData.products[i].img = 'assets/images/' + el.querySelector('.edit-img').value;
-      const promoEnabledEl = el.querySelector('.edit-promo-enabled');
-      const promoPriceEl = el.querySelector('.edit-promo-price');
-      adminData.products[i].promoEnabled = promoEnabledEl ? !!promoEnabledEl.checked : false;
-      const promoVal = promoPriceEl ? promoPriceEl.value : '';
-      adminData.products[i].promoPrice = promoVal !== '' ? String(promoVal) : '';
-    });
+    // Atualizar produtos inline via API
+    const productElements = document.querySelectorAll('#adminProductList .admin-product');
+    for (let i = 0; i < productElements.length; i++) {
+      const el = productElements[i];
+      const id = Number(el.querySelector('.remove-check').dataset.id);
+      const name = el.querySelector('.edit-name').value;
+      const price = el.querySelector('.edit-price').value;
+      const img = 'assets/images/' + el.querySelector('.edit-img').value;
+      const promoEnabled = el.querySelector('.edit-promo-enabled').checked;
+      const promoPrice = el.querySelector('.edit-promo-price').value;
+
+      try {
+        await updateProduct(id, { name, price, img, promoEnabled, promoPrice });
+      } catch (error) {
+        console.error('Erro ao atualizar produto:', error);
+      }
+    }
 
     // PIX
     adminData.pix.key = document.getElementById('pixKey').value.trim();
@@ -423,7 +455,7 @@ function bindSave() {
     adminData.content.checkoutNote = document.getElementById('checkoutNote').value;
     adminData.content.successDiscordStepsHTML = document.getElementById('successSteps').value;
 
-    // Persistir
+    // Persistir apenas configurações (produtos já salvos via API)
     persistAdminData();
     applyThemeFromStorage();
     alert('Alterações salvas. Recarregando para aplicar...');
@@ -437,12 +469,12 @@ function bindSave() {
 (function bindLogin(){
   const loginBtn = document.getElementById('adminLoginBtn');
   if (!loginBtn) return;
-  loginBtn.onclick = () => {
+  loginBtn.onclick = async () => {
     const user = (document.getElementById('adminUsername').value || '').trim();
     const pass = (document.getElementById('adminPassword').value || '').trim();
     if (user === ADMIN_USER && pass === ADMIN_PASS) {
       // Injetar painel completo agora
-      buildPanelSections();
+      await buildPanelSections();
     } else {
       alert('Usuário ou senha inválidos');
     }
