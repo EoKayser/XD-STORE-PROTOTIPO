@@ -3,8 +3,11 @@
    ================================ */
 
 body {
-  background-color: #f4f4f4;
-  color: #111;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
 
 /* Container padrão para centralizar conteúdo */
@@ -21,8 +24,8 @@ body {
    ================================ */
 
 .site-header {
-  background-color: var(--primary);
-  border-bottom: 1px solid #ddd;
+  background-color: var(--surface);
+  border-bottom: 2px solid var(--primary);
 }
 
 .header-container {
@@ -32,10 +35,26 @@ body {
   height: 70px;
 }
 
+.header-actions { display:flex; gap:8px; align-items:center; }
+
 .store-name {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
+
+.store-name .store-sub {
+  font-size:0.75rem;
+  padding:4px 8px;
+  background: linear-gradient(90deg,var(--primary),var(--primary-2));
+  color:#fff;
+  border-radius:999px;
+  font-weight:700;
+  margin-left:6px;
+} 
 
 /* ================================
    MAIN
@@ -78,8 +97,9 @@ body {
    ================================ */
 
 .site-footer {
-  border-top: 1px solid #ddd;
+  border-top: 1px solid rgba(255,255,255,0.04);
   padding: 30px 0;
+  background: var(--surface);
 }
 
 .footer-container {
@@ -90,15 +110,98 @@ body {
 
 .footer-store-name {
   font-weight: bold;
-  color: white;
+  color: var(--text);
 }
 
 .footer-text {
   font-size: 0.9rem;
-  color: white;
+  color: var(--muted);
 }
 
 .footer-legal {
   font-size: 0.8rem;
-  color: white;
+  color: var(--muted);
+}
+
+/* ================================
+   MOBILE LAYOUT
+   ================================ */
+
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    height: auto;
+    padding: 16px 20px;
+  }
+
+  .store-name {
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+  }
+
+  .header-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .header-actions .product-button {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .cart-button {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .products-list {
+    grid-template-columns: 1fr;
+  }
+
+  .site-main {
+    padding: 20px 10px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+
+  .cart-sidebar {
+    width: 100vw;
+    right: -100vw;
+  }
+
+  .cart-sidebar.active {
+    right: 0;
+  }
+
+  .welcome-panel {
+    padding: 20px 10px;
+  }
+
+  .welcome-inner {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .welcome-visual img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .welcome-title {
+    font-size: 1.4rem;
+  }
+
+  .welcome-features {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .welcome-ctas {
+    flex-direction: column;
+    gap: 10px;
+  }
 }

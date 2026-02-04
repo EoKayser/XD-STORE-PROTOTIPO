@@ -1,217 +1,173 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>XD Store</title>
-
-  <link rel="icon" type="image/png" href="assets/icons/xd.png" />
-  <link rel="stylesheet" href="css/reset.css" />
-  <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/theme.css" />
-  <link rel="stylesheet" href="css/components.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XD Store - A número 1 de Minecraft</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/icons/xd.png">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/theme.css">
 </head>
-
 <body>
+  <div class="announcement" role="region" aria-live="polite">
+    <div class="announcement-inner">
+      <div class="led-screen" aria-hidden="false">
+        <div class="marquee" aria-hidden="false">
+          <span>⚡ Promoções ativas • Entrega digital imediata • Suporte via Discord</span>
+          <span aria-hidden="true">⚡ Promoções ativas • Entrega digital imediata • Suporte via Discord</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- HEADER -->
   <header class="site-header">
     <div class="header-container">
-
-      <div class="logo">
-        XD <span>Store</span>
-      </div>
-
-         <button class="cart-button" id="open-cart">
-          🛒 Carrinho
-          <span class="cart-count">0</span>
+      <h1 class="store-name">XD STORE <small class="store-sub">(TOP 1)</small></h1>
+      <div class="header-actions">
+        <button id="theme-toggle" class="support-button" aria-label="Alternar tema">🌓</button>
+        <a href="pages/sobre.html" class="product-button cta-secondary" style="text-decoration:none;margin-right:8px;">Sobre</a>
+        <a href="pages/parceiros.html" class="product-button cta-secondary" style="text-decoration:none;margin-right:8px;">Parceiros</a>
+        <a href="pages/FAQ.html" class="product-button cta-secondary" style="text-decoration:none;margin-right:8px;">FAQ</a>
+        <a href="pages/Blog.html" class="product-button cta-secondary" style="text-decoration:none;margin-right:8px;">Novidades</a>
+        <button id="open-cart" class="cart-button" aria-label="Abrir carrinho">
+          Carrinho (<span class="cart-count">0</span>)
         </button>
-
+      </div>
     </div>
   </header>
 
-  <!-- CARRINHO LATERAL -->
-  <aside class="cart-sidebar" id="cart-sidebar">
-
-    <div class="cart-header">
-      <h2>Meu Carrinho</h2>
-      <button class="cart-close" id="close-cart">✕</button>
-    </div>
-
-    <div class="cart-items">
-      <!-- itens via JS -->
-    </div>
-
-    <div class="cart-footer">
-      <div class="cart-total">
-        <span>Total</span>
-        <strong id="cart-total">R$ 0,00</strong>
-      </div>
-
-     <a href="pages/checkout.html" class="checkout-button">
-  Finalizar Compra
-</a>
-    </div>
-
-  </aside>
-
-  <!-- OVERLAY -->
-  <div class="cart-overlay" id="cart-overlay"></div>
-
-  <!-- MAIN -->
   <main class="site-main">
 
-    <section class="store-intro">
-      <h2 class="store-title">Bem-vindo à loja</h2>
-      <p class="store-description">
-        Aqui você encontra nossos produtos disponíveis.
-      </p>
+    <section class="welcome-panel">
+      <div class="welcome-inner">
+        <div class="welcome-visual">
+          <img src="assets/icons/XD2.png" alt="Bloco de Grama" width="120" height="120">
+        </div>
+
+        <div class="welcome-content">
+          <div class="welcome-header">
+            <h2 class="welcome-title">Bem-vindo à <span class="highlight">XD STORE</span></h2>
+            <div class="welcome-badge">⚡ Entrega digital imediata</div>
+          </div>
+
+          <p class="welcome-lead">Itens digitais para sua diversão no servidor — <strong>entrega 100% digital e imediata</strong> após confirmação de pagamento.</p>
+
+          <p class="welcome-body">Aqui você encontra <strong>kits, conteúdos e utilitários exclusivos</strong>. Produtos digitais são entregues via Discord de forma rápida e segura. Se tiver dúvidas, abra um ticket no nosso servidor — nosso time responde rápido.</p>
+
+          <ul class="welcome-features" aria-hidden="false">
+            <li>✅ Entrega via Discord em minutos</li>
+            <li>💎 Itens exclusivos e atualizados</li>
+            <li>🛡️ Suporte confiável para resgate</li>
+          </ul>
+
+          <div class="welcome-ctas">
+            <button id="view-promos" class="product-button cta-primary">🔥 Ver promoções</button>
+            <a href="#products" class="product-button cta-secondary">Explorar produtos</a>
+          </div> 
+        </div>
+      </div>
     </section>
 
-    <section class="products-section">
-      <h2 class="section-title">Produtos</h2>
-      <div class="products-list">
-        <!-- produtos via JS -->
-      </div>
+    <section id="products" class="products-section">
+      <h2 class="section-title">Nossos Produtos</h2>
+      <div class="products-list"></div>
     </section>
 
   </main>
 
-  <!-- FOOTER -->
   <footer class="site-footer">
     <div class="footer-container">
-
-      <div class="footer-brand">
-        <strong class="footer-store-name">XD Store</strong>
-      </div>
-
-      <div class="footer-info">
-        <p class="footer-text">
-          Loja digital de Minecraft
-        </p>
-      </div>
-
-      <div class="footer-legal">
-        <small>
-          © 2026 XD Store. Todos os direitos reservados.
-        </small>
-      </div>
-
+      <p class="footer-store-name">XD STORE</p>
+      <p class="footer-text">Itens digitais, entrega imediata via Discord</p>
+      <p class="footer-legal">© 2026 XD STORE. Todos os direitos reservados.</p>
     </div>
   </footer>
 
-  <!-- PRODUTOS (EDITAR MANUALMENTE PARA ADICIONAR/REMOVER) -->
-  <script>
-    window.PRODUCTS = [
-      // Adicione produtos aqui manualmente no formato:
-      // { id: 1, name: "Nome do Produto", price: "10.00", img: "assets/images/produto1.png", promoEnabled: false, promoPrice: "" }
-    ];
-  </script>
+  <!-- Carrinho lateral -->
+  <div id="cart-overlay" class="cart-overlay"></div>
+  <aside id="cart-sidebar" class="cart-sidebar">
+    <div class="cart-header">
+      <h3>Carrinho</h3>
+      <button id="close-cart" class="close-cart">×</button>
+    </div>
+    <div class="cart-items"></div>
+    <div class="cart-footer">
+      <p>Total: <strong id="cart-total">R$ 0,00</strong></p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        <a href="pages/checkout.html" class="checkout-button" aria-label="Finalizar compra">Finalizar compra</a>
+        <div style="display:flex;gap:8px;">
+          <button class="clear-cart" aria-label="Limpar carrinho" style="background:#ff5555;color:#fff;border:none;padding:8px;border-radius:8px;">Limpar carrinho</button>
+        </div>
+      </div>
+    </div>
+</aside>
 
-  <!-- SCRIPTS (ORDEM IMPORTA) -->
-  <script type="module">
-    import { initUI } from "./js/ui.js";
-    (async () => {
-      await initUI();
+  <!-- Botão de Suporte (Discord) -->
+  <a href="https://discord.gg/3t7g9TbN5M" class="discord-support" target="_blank" rel="noopener noreferrer" aria-label="Suporte no Discord" title="Suporte no Discord (XD Store)">
+    <img src="assets/images/discord.png" alt="Discord" width="20" height="20">
+    <span>Suporte</span>
+  </a>
+
+  <script>
+    // Robust theme toggle with wipe animation that applies the theme mid-animation.
+    (function(){
+      const btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      const DURATION = 1000; // ms (matches CSS)
+
+      btn.addEventListener('click', (e)=>{
+        // prevent other handlers to control timing and ensure visible animation
+        e.stopImmediatePropagation();
+        try{
+          if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+            // fallback: simple toggle
+            const cur = localStorage.getItem('xd-theme') || 'dark';
+            const next = cur === 'dark' ? 'light' : 'dark';
+            if (next === 'light') document.documentElement.setAttribute('data-theme','light'); else document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('xd-theme', next);
+            return;
+          }
+
+          // Determine next theme
+          const cur = localStorage.getItem('xd-theme') || 'dark';
+          const next = cur === 'dark' ? 'light' : 'dark';
+
+          // create wipe overlay and set theme to match target
+          const wipe = document.createElement('div');
+          wipe.className = 'theme-wipe ' + (next === 'light' ? 'light' : 'dark');
+          document.body.appendChild(wipe);
+
+          // trigger animation
+          // ensure micro animations run too
+          document.documentElement.classList.add('theme-animating','with-transition');
+          // start wipe
+          // small timeout to ensure element is in the DOM
+          setTimeout(()=> wipe.classList.add('active'), 10);
+
+          // apply theme midway so user sees transition
+          setTimeout(()=>{
+            if (next === 'light') document.documentElement.setAttribute('data-theme','light'); else document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('xd-theme', next);
+          }, DURATION/2);
+
+          // cleanup after animation
+          setTimeout(()=>{
+            wipe.classList.remove('active');
+            setTimeout(()=>{ try{ wipe.remove(); }catch(e){} }, 220);
+            document.documentElement.classList.remove('theme-animating');
+            setTimeout(()=>{ document.documentElement.classList.remove('with-transition'); }, 120);
+          }, DURATION + 80);
+
+        }catch(e){ /* noop */ }
+      });
     })();
   </script>
 
-  <script type="module" src="./js/admin.js"></script>
-
-<!-- ADMIN MODAL -->
-<div class="admin-overlay" id="admin-overlay">
-  <div class="admin-modal">
-
-    <!-- LOGIN -->
-    <div class="admin-login" id="admin-login">
-      <h2>Modo Administrador</h2>
-      <input type="password" id="admin-password" placeholder="Senha">
-      <button id="admin-login-btn">Entrar</button>
-    </div>
-
-    <!-- PAINEL -->
-    <div class="admin-panel hidden" id="admin-panel">
-      <h2>Painel Admin</h2>
-
-      <div class="admin-form">
-        <input type="text" id="product-name" placeholder="Nome do produto">
-        <input type="number" id="product-price" placeholder="Preço">
-        <input type="text" id="product-img" placeholder="URL da imagem">
-        <button id="add-product-btn">Adicionar produto</button>
-        <button id="export-products" style="margin-top: 10px; background: #28a745;">Exportar JSON dos Produtos</button>
-      </div>
-
-      <h3>Produtos cadastrados</h3>
-      <div class="admin-products" id="admin-products"></div>
-
-      <button class="admin-close" id="admin-close">Fechar</button>
-    </div>
-
-  </div>
-</div>
-
-<script>
-  // ===============================
-  // CHECKOUT PIX - SEGURO
-  // ===============================
-
-  const checkoutSection = document.getElementById("pix-checkout");
-  const mainSection = document.querySelector(".site-main");
-  const footerSection = document.querySelector(".site-footer");
-  const checkoutBtn = document.querySelector(".checkout-button");
-  const backBtn = document.getElementById("pix-back");
-
-  const pixOrderIdEl = document.getElementById("pix-order-id");
-  const pixTotalEl = document.getElementById("pix-total");
-
-  function getCart() {
-    return JSON.parse(localStorage.getItem("cart")) || [];
-  }
-
-  function generateOrderId() {
-    return `XD-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`;
-  }
-
-  function calculateCartTotal(cart) {
-    return cart.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
-  }
-
-  // FINALIZAR COMPRA
-  checkoutBtn.addEventListener("click", () => {
-    const cart = getCart();
-
-    if (cart.length === 0) {
-      alert("Carrinho vazio");
-      return;
-    }
-
-    // troca de tela
-    mainSection.classList.add("hidden");
-    footerSection.classList.add("hidden");
-    checkoutSection.classList.remove("hidden");
-    window.scrollTo(0, 0);
-
-    const orderId = generateOrderId();
-    const total = calculateCartTotal(cart);
-
-    pixOrderIdEl.textContent = orderId;
-    pixTotalEl.textContent = "R$ " + total;
-
-    // salva pedido
-    localStorage.setItem("currentOrder", JSON.stringify({
-      id: orderId,
-      total,
-      items: cart,
-      status: "aguardando pagamento"
-    }));
-  });
-
-  // VOLTAR
-  backBtn.addEventListener("click", () => {
-    checkoutSection.classList.add("hidden");
-    mainSection.classList.remove("hidden");
-    footerSection.classList.remove("hidden");
-  });
-</script>
-
+  <script type="module" src="js/ui.js"></script>
 </body>
 </html>

@@ -1,164 +1,152 @@
 /* ================================
    STORE.JS
-   Gerenciamento de dados da loja
-   Produtos (API) + Carrinho (localStorage)
+   Gerenciamento de produtos e carrinho (suporte a qty)
    ================================ */
 
-import { API_BASE } from './config.js';
+const PRODUCTS = [
+  {
+    id: 1,
+    name: "Minecraft Full Acesso",
+    price: 70.00,
+    promoEnabled: true,
+    promoPrice: 50.00,
+    img: "assets/images/produto1.png",
+    description: "Espada poderosa para derrotar mobs e chefes"
+  },
+  {
+    id: 2,
+    name: "Minecraft SFA",
+    price: 2.50,
+    img: "assets/images/produto2.png",
+    description: "Picareta eficiente para mineração rápida"
+  },
+  {
+    id: 3,
+    name: "Conta + Capa",
+    price: 90.00,
+    img: "assets/images/produto3.png",
+    description: "Três poções de cura para emergências"
+  },
+  {
+    id: 4,
+    name: "Capa Optifine (SFA)",
+    price: 5.00,
+    img: "assets/images/produto4.png",
+    description: "Conjunto de armadura para proteção confiável"
+  },
+  {
+    id: 5,
+    name: "Capa Optifine FA",
+    price: 30.00,
+    img: "assets/images/produto5.png",
+    description: "Pacote com 64 tochas para iluminar suas cavernas"
+  },
+  {
+    id: 6,
+    name: "Método Unban",
+    price: 5.00,
+    img: "assets/images/produto6.png",
+    description: "Bloco decorativo para construção e paisagismo"
+  },
+  {
+    id: 7,
+    name: "Skin Profissional",
+    price: 19.90,
+    promoEnabled: true,
+    promoPrice: 14.90,
+    img: "assets/images/produto7.png",
+    description: "Pacote especial com itens exclusivos para servidores"
+  }
+];
 
-/* ---------- CHAVES DO LOCALSTORAGE ---------- */
-const CART_KEY = "cart";
-const PRODUCTS_KEY = "products";
-
-/* ---------- PRODUTOS ---------- */
-
-/**
- * Retorna todos os produtos (API primeiro, depois localStorage, depois window.PRODUCTS)
- */
 export async function getProducts() {
-  try {
-    const response = await fetch(`${API_BASE}/products`);
-    if (response.ok) {
-      const products = await response.json();
-      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
-      return products;
-    }
-  } catch (error) {
-    console.warn('API não disponível, usando localStorage:', error);
-  }
-
-  const stored = localStorage.getItem(PRODUCTS_KEY);
-  if (stored) {
-    return JSON.parse(stored);
-  }
-  return window.PRODUCTS || [];
+  return PRODUCTS;
 }
 
-/**
- * Adiciona um novo produto ao localStorage
- * product = { name, price, img }
- */
-export async function addProduct(product) {
-  const products = await getProducts();
-  const newProduct = {
-    id: Date.now(),
-    name: product.name,
-    price: String(product.price),
-    img: product.img,
-    promoEnabled: false,
-    promoPrice: ''
-  };
-  products.push(newProduct);
-  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
-  return newProduct;
-}
-
-/**
- * Remove produto pelo ID via API
- */
-export async function removeProduct(id) {
-  try {
-    const response = await fetch(`${API_BASE}/products/${id}`, {
-      method: 'DELETE'
-    });
-    if (response.ok) {
-      // Atualizar localStorage
-      const products = await getProducts();
-      const filtered = products.filter(p => p.id != id);
-      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(filtered));
-      return;
-    }
-  } catch (error) {
-    console.warn('API não disponível, removendo localmente:', error);
-  }
-
-  // Fallback para localStorage
-  const products = await getProducts();
-  const filtered = products.filter(p => p.id != id);
-  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(filtered));
-}
-
-/**
- * Atualiza um produto existente via API
- */
-export async function updateProduct(id, updatedProduct) {
-  try {
-    const response = await fetch(`${API_BASE}/products/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedProduct)
-    });
-    if (response.ok) {
-      const updated = await response.json();
-      // Atualizar localStorage
-      const products = await getProducts();
-      const index = products.findIndex(p => p.id == id);
-      if (index !== -1) {
-        products[index] = updated;
-        localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
-      }
-      return updated;
-    }
-  } catch (error) {
-    console.warn('API não disponível, atualizando localmente:', error);
-  }
-
-  // Fallback para localStorage
-  const products = await getProducts();
-  const index = products.findIndex(p => p.id == id);
-  if (index !== -1) {
-    products[index] = { ...products[index], ...updatedProduct };
-    localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+export function getCart(){
+  try{
+    const raw = localStorage.getItem('cart');
+    const cart = raw ? JSON.parse(raw) : [];
+    return cart.map(i => ({ id: i.id, name: i.name, price: Number(i.price), qty: Number(i.qty||1), img: i.img || '' }));
+  }catch(e){
+    return [];
   }
 }
 
-/* ---------- CARRINHO ---------- */
-
-/**
- * Retorna carrinho
- */
-export function getCart() {
-  return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+function saveCart(cart){
+  localStorage.setItem('cart', JSON.stringify(cart));
 }
 
-/**
- * Salva carrinho
- */
-export function setCart(cart) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
-}
-
-/**
- * Adiciona item ao carrinho
- */
-export function addToCart(item) {
+export function addToCart(product, qty = 1){
   const cart = getCart();
-  cart.push(item);
-  setCart(cart);
+  const existing = cart.find(i => i.id == product.id);
+  if (existing){
+    existing.qty = Number(existing.qty) + Number(qty);
+    if (!existing.img && product.img) existing.img = product.img;
+  } else {
+    cart.push({ id: product.id, name: product.name, price: Number(product.price), qty: Number(qty), img: product.img || '' });
+  }
+  saveCart(cart);
 }
 
-/**
- * Remove item do carrinho pelo índice
- */
-export function removeFromCart(index) {
+export function updateQuantity(id, qty){
   const cart = getCart();
-  cart.splice(index, 1);
-  setCart(cart);
+  const idx = cart.findIndex(i => i.id == id);
+  if (idx === -1) return;
+  qty = Number(qty);
+  if (qty <= 0) cart.splice(idx, 1);
+  else cart[idx].qty = qty;
+  saveCart(cart);
 }
 
-/**
- * Limpa carrinho
- */
-export function clearCart() {
-  localStorage.removeItem(CART_KEY);
-}
-
-/**
- * Calcula total do carrinho
- */
-export function getCartTotal() {
+export function removeFromCart(id){
   const cart = getCart();
-  return cart.reduce((total, item) => {
-    return total + parseFloat(item.price);
-  }, 0);
+  const idx = cart.findIndex(i => i.id == id);
+  if (idx !== -1){
+    cart.splice(idx,1);
+    saveCart(cart);
+  }
+}
+
+export function clearCart(){
+  saveCart([]);
+}
+
+export function getCartTotal(){
+  const cart = getCart();
+  return cart.reduce((total, item) => total + (Number(item.price) || 0) * (Number(item.qty) || 1), 0);
+}
+
+export function applyCoupon(code, percentage){
+  localStorage.setItem('appliedCoupon', JSON.stringify({code, percentage: Number(percentage)}));
+}
+
+export function removeCoupon(){
+  localStorage.removeItem('appliedCoupon');
+}
+
+export function getAppliedCoupon(){
+  try{
+    const raw = localStorage.getItem('appliedCoupon');
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){
+    return null;
+  }
+}
+
+export function getDiscount(subtotal){
+  const coupon = getAppliedCoupon();
+  if (!coupon) return 0;
+  return (subtotal * coupon.percentage) / 100;
+}
+
+export function getCartTotalWithDiscount(){
+  const subtotal = getCartTotal();
+  const discount = getDiscount(subtotal);
+  return subtotal - discount;
+}
+
+export function getCartCount(){
+  const cart = getCart();
+  return cart.reduce((total, item) => total + (Number(item.qty) || 1), 0);
 }
